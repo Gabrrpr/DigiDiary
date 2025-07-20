@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Card elevation -->
+    <dimen name="card_selected_elevation">8dp</dimen>
+    
+    <!-- Add other dimension values here as needed -->
+</resources>

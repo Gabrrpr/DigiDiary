@@ -3,4 +3,13 @@
     <string name="DigiDiary">DigiDiary</string>
     <string name="motto">Your comfort, your diary</string>
     <string name="welcome_user">Welcome, %1$s!</string>
+    <string name="add_new_entry">Add new entry</string>
+
+    <!-- Create Activity Strings -->
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="create_new">Create New</string>
+    <string name="title_hint">Title</string>
+    <string name="date_hint">Date</string>
+    <string name="content_hint">Write your thoughts here...</string>
 </resources>

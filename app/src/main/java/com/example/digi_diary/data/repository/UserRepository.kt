@@ -61,4 +61,16 @@ class UserRepository(private val database: AppDatabase) {
             userDao.getUserByUsername(username) != null
         }
     }
+    
+    // Debug method to get all users
+    suspend fun getAllUsersForDebug(): List<User> {
+        return withContext(Dispatchers.IO) {
+            try {
+                userDao.getAllUsers()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emptyList()
+            }
+        }
+    }
 }

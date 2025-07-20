@@ -121,6 +121,7 @@
     <!-- Forgot Password -->
 
     <!-- Login Button -->
+
     <TextView
         android:id="@+id/forgotPasswordText"
         android:layout_width="wrap_content"
