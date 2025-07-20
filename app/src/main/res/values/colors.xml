@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="floating_label_color">#6B7158</color>
+    <color name="gray_600">#757575</color> <!-- Material Design Gray 600 -->
+    <color name="red_500">#F44336</color> <!-- Material Design Red 500 -->
 </resources>
