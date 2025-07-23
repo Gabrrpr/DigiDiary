@@ -46,115 +46,24 @@
         </androidx.core.widget.NestedScrollView>
     </androidx.cardview.widget.CardView>
 
-    <!-- Content -->
-
-    <!-- Shadow View -->
-
-    <!-- Bottom Navigation Container -->
+    <!-- Main Content Container -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bottom_nav_container"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@drawable/bottom_nav_background"
-        android:elevation="16dp"
-        android:paddingTop="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <!-- Left Navigation Button -->
-        <ImageView
-            android:id="@+id/nav_home"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="48dp"
-            android:background="@drawable/nav_item_background"
-            android:padding="12dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_home"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#6B7158" />
-
-        <!-- Right Navigation Button -->
-        <ImageView
-            android:id="@+id/nav_profile"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="48dp"
-            android:background="@drawable/nav_item_background"
-            android:padding="12dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_profile"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#6B7158" />
-
-        <!-- Centered FAB with exact padding -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:contentDescription="@string/add_new_entry"
-            android:paddingTop="8dp"
-            android:paddingBottom="20dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="#6B7158"
-            app:borderWidth="0dp"
-            app:elevation="8dp"
-            app:fabCustomSize="64dp"
-            app:fabSize="normal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="-0.4"
-            app:maxImageSize="32dp"
-            app:rippleColor="#4D6B7158"
-            app:tint="@android:color/white" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/nav_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.9" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Debug Button (Temporary) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/debugButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Debug: Show Users"
-        android:layout_margin="16dp"
-        app:backgroundTint="#FF0000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="HardcodedText" />
-
-    <!-- Welcome Section Container -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/welcomeSection"
+        android:id="@+id/mainContent"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_height="0dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView">
 
+        <!-- Welcome Section -->
         <TextView
             android:id="@+id/welcomeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
             android:text="Hello, User"
             android:textColor="#000000"
             android:textSize="24sp"
@@ -167,18 +76,22 @@
             android:id="@+id/dateText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="4dp"
             android:text="Sunday, 20 Jul"
             android:textColor="#757575"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/welcomeText"
-            app:layout_constraintTop_toBottomOf="@id/welcomeText" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/welcomeText"
+            tools:ignore="HardcodedText" />
 
         <View
             android:id="@+id/divider"
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
             android:background="#1F000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -188,6 +101,7 @@
             android:id="@+id/journalsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
             android:text="Journals"
             android:textColor="#212121"
@@ -196,8 +110,132 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
 
+        <!-- Notes List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/notesRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/journalsTitle"
+            tools:itemCount="5"
+            tools:listitem="@layout/item_note" />
+
+        <!-- Loading Progress Bar -->
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Empty State - Centered in the remaining space below Journals -->
+        <LinearLayout
+            android:id="@+id/emptyStateContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/journalsTitle">
+
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/ic_note"
+                app:tint="#9E9E9E"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/emptyStateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No notes yet"
+                android:textColor="#757575"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Tap the + button to create your first note"
+                android:textColor="#9E9E9E"
+                android:textSize="14sp" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Continue Button -->
+    <!-- Bottom Navigation Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_nav_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            app:itemIconTint="@drawable/bottom_nav_color_selector"
+            app:itemTextColor="@drawable/bottom_nav_color_selector"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/bottom_nav_menu"
+            app:labelVisibilityMode="labeled"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored" />
+            
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- FAB moved to root layout to ensure it's on top -->
+
+    <!-- Add Note FAB -->
+
+    <!-- Removed duplicate welcome section -->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:contentDescription="@string/add_new_entry"
+        android:padding="20dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_add"
+        android:layout_marginBottom="24dp"
+        app:backgroundTint="#6B7158"
+        app:borderWidth="0dp"
+        app:elevation="16dp"
+        app:fabCustomSize="72dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:maxImageSize="32dp"
+        app:rippleColor="#4D6B7158"
+        app:tint="@android:color/white"
+        app:useCompatPadding="true" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

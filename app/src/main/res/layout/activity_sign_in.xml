@@ -209,12 +209,13 @@
     <!-- Remember Me & Forgot Password -->
 
     <!-- Sign In Button -->
+
     <CheckBox
         android:id="@+id/rememberMeCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
         android:buttonTint="#6B7158"
         android:text="Remember me"
         android:textColor="#000000"
@@ -226,7 +227,7 @@
         android:layout_width="177dp"
         android:layout_height="58dp"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="92dp"
+        android:layout_marginBottom="68dp"
         android:backgroundTint="#6B7158"
         android:text="Sign in"
         android:textAllCaps="false"

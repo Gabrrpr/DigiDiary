@@ -1,5 +1,6 @@
 package com.example.digi_diary
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -20,16 +21,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import android.util.Log
 
 class SignIn : AppCompatActivity() {
     private lateinit var emailEditText: TextInputEditText
     private lateinit var usernameEditText: TextInputEditText
     private lateinit var passwordEditText: TextInputEditText
     private lateinit var confirmPasswordEditText: TextInputEditText
+    private lateinit var emailLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var confirmPasswordLayout: TextInputLayout
-    
-    private val app by lazy { application as DigiDiaryApplication }
+    private val app by lazy { application as com.example.digi_diary.DigiDiaryApplication }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +54,7 @@ class SignIn : AppCompatActivity() {
         usernameEditText = findViewById(R.id.usernameEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText)
+        emailLayout = findViewById(R.id.emailLayout)
         passwordLayout = findViewById(R.id.passwordLayout)
         confirmPasswordLayout = findViewById(R.id.confirmPasswordLayout)
         
@@ -116,6 +123,22 @@ class SignIn : AppCompatActivity() {
         }
     }
     
+    private fun navigateToHome(user: FirebaseUser?) {
+        if (user != null) {
+            val intent = Intent(this, HomePage::class.java).apply {
+                user.email?.let { putExtra("USER_EMAIL", it) }
+                putExtra("USER_NAME", user.displayName ?: user.email?.substringBefore("@") ?: "User")
+                putExtra("user_id", user.uid)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
+        } else {
+            // If user is null, go back to login
+            finish()
+        }
+    }
+    
     private fun validateInputs(): Boolean {
         val email = emailEditText.text.toString().trim()
         val username = usernameEditText.text.toString().trim()
@@ -166,60 +189,69 @@ class SignIn : AppCompatActivity() {
         val password = passwordEditText.text.toString()
         
         // Show loading state
-        findViewById<MaterialButton>(R.id.SignInButton).isEnabled = false
+        val signUpButton = findViewById<MaterialButton>(R.id.SignInButton)
+        signUpButton.isEnabled = false
+        signUpButton.text = getString(R.string.creating_account)
         
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                // Check if email already exists
-                val emailExists = withContext(Dispatchers.IO) {
-                    app.userRepository.isEmailTaken(email)
-                }
-                
-                if (emailExists) {
-                    emailEditText.error = "Email already registered"
-                    return@launch
-                }
-                
-                // Check if username is already taken
-                val usernameExists = withContext(Dispatchers.IO) {
-                    app.userRepository.isUsernameTaken(username)
-                }
-                
-                if (usernameExists) {
-                    usernameEditText.error = "Username already taken"
-                    return@launch
-                }
-                
-                // Register the user
-                val success = withContext(Dispatchers.IO) {
-                    app.userRepository.registerUser(username, email, password)
-                }
-                
-                if (success) {
+        // Create user with Firebase Auth
+        Firebase.auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                try {
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("SignIn", "createUserWithEmail:success")
+                        val user = Firebase.auth.currentUser
+                        
+                        // Update user profile with display name (username)
+                        val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                            .setDisplayName(username)
+                            .build()
+                            
+                        user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
+                            if (profileTask.isSuccessful) {
+                                Log.d("SignIn", "User profile updated with username")
+                            } else {
+                                Log.w("SignIn", "Failed to update user profile", profileTask.exception)
+                            }
+                            navigateToHome(user)
+                        }
+                    } else {
+                        // If sign up fails, display a message to the user.
+                        val error = task.exception?.message ?: "Registration failed"
+                        Log.e("SignIn", "createUserWithEmail:failure", task.exception)
+                        
+                        val errorMessage = when {
+                            error.contains("email-already-in-use", ignoreCase = true) -> 
+                                "❌ An account already exists with this email. Please log in instead."
+                            error.contains("invalid-email", ignoreCase = true) ->
+                                "❌ Invalid email format. Please enter a valid email address."
+                            error.contains("weak-password", ignoreCase = true) ->
+                                "❌ Password is too weak. Please choose a stronger password."
+                            error.contains("network", ignoreCase = true) ->
+                                "🌐 Network error. Please check your internet connection and try again."
+                            else -> "❌ Registration failed: ${error.take(100)}${if (error.length > 100) "..." else ""}"
+                        }
+                        
+                        emailLayout.error = " " // Set error to show the error icon
+                        Toast.makeText(
+                            this@SignIn,
+                            errorMessage,
+                            Toast.LENGTH_LONG
+                        ).show()
+                        
+                        signUpButton.isEnabled = true
+                        signUpButton.text = getString(R.string.sign_up)
+                    }
+                } catch (e: Exception) {
+                    Log.e("SignIn", "Error during registration", e)
                     Toast.makeText(
                         this@SignIn,
-                        "Registration successful! Please login.",
-                        Toast.LENGTH_SHORT
+                        "❌ An error occurred: ${e.message ?: "Unknown error"}",
+                        Toast.LENGTH_LONG
                     ).show()
-                    finish() // Return to login screen
-                } else {
-                    Toast.makeText(
-                        this@SignIn,
-                        "Registration failed. Please try again.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    signUpButton.isEnabled = true
+                    signUpButton.text = getString(R.string.sign_up)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(
-                    this@SignIn,
-                    "An error occurred: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } finally {
-                // Re-enable the button
-                findViewById<MaterialButton>(R.id.SignInButton).isEnabled = true
             }
-        }
     }
 }

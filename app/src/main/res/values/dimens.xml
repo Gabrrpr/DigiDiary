@@ -3,5 +3,9 @@
     <!-- Card elevation -->
     <dimen name="card_selected_elevation">8dp</dimen>
     
+    <!-- Note item spacing -->
+    <dimen name="note_item_spacing">16dp</dimen>
+    <dimen name="default_item_spacing">16dp</dimen>
+    
     <!-- Add other dimension values here as needed -->
 </resources>

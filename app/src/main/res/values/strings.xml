@@ -1,15 +1,59 @@
 <resources>
+    <string name="no_notes_found">No notes found. Tap the + button to create one.</string>
+    <!-- App Info -->
     <string name="app_name">Digi_Diary</string>
     <string name="DigiDiary">DigiDiary</string>
     <string name="motto">Your comfort, your diary</string>
+    
+    <!-- Common -->
     <string name="welcome_user">Welcome, %1$s!</string>
     <string name="add_new_entry">Add new entry</string>
-
-    <!-- Create Activity Strings -->
+    <string name="profile">Profile</string>
+    <string name="username">Username</string>
+    
+    <!-- Create Activity -->
     <string name="back">Back</string>
     <string name="save">Save</string>
-    <string name="create_new">Create New</string>
-    <string name="title_hint">Title</string>
-    <string name="date_hint">Date</string>
-    <string name="content_hint">Write your thoughts here...</string>
+    <string name="create_note">Create Note</string>
+    <string name="title">Title</string>
+    <string name="content">Content</string>
+    <string name="type_your_thoughts_here">Type your thoughts here...</string>
+    <string name="edit_note">Edit note</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="unsaved_changes">Unsaved Changes</string>
+    <string name="save_changes_question">Do you want to save your changes?</string>
+    <string name="discard">Discard</string>
+    <string name="cancel">Cancel</string>
+    
+    <!-- Error Messages -->
+    <string name="error_saving_note">Error saving note</string>
+    <string name="error_loading_note">Error loading note</string>
+    <string name="note_content_empty">Note content cannot be empty</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="title_home">Home</string>
+    <string name="title_profile">Profile</string>
+    <string name="change_password">Change Password</string>
+    <string name="update_password">Update Password</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="updating">Updating...</string>
+    <string name="authenticating">Authenticating...</string>
+    
+    <!-- Authentication -->
+    <string name="signing_in">Signing in...</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="creating_account">Creating account...</string>
+    <string name="updating_password">Updating password...</string>
+    <string name="sending_email">Sending email...</string>
+    <string name="send_reset_link">Send Reset Link</string>
+    <string name="password_reset_email_sent">Password Reset Email Sent</string>
+    <string name="check_email_for_reset">Check your email for instructions to reset your password.</string>
+    <string name="email_required">Email is required</string>
+    <string name="invalid_email">Please enter a valid email address</string>
+    <string name="reset_email_failed">Failed to send password reset email</string>
+    
+    <!-- Accessibility -->
+    <string name="back_button">Back button</string>
+    <string name="save_button">Save button</string>
 </resources>

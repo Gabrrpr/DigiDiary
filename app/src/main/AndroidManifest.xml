@@ -26,8 +26,8 @@
             android:name=".Create"
             android:exported="false" />
         <activity
-            android:name=".ui.home.HomePage"
-            android:exported="false"
+            android:name=".HomePage"
+            android:exported="true"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -36,10 +36,11 @@
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
         <activity
             android:name=".Login"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:theme="@style/Theme.Digi_Diary.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

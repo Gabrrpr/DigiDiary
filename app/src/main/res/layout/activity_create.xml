@@ -3,175 +3,176 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
+    android:paddingBottom="16dp"
     tools:context=".Create">
 
-    <!-- Header with back button, title, and save button -->
-    <LinearLayout
-        android:id="@+id/headerLayout"
+    <!-- Header with back button and title -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="#6B7158"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Back Button -->
         <ImageButton
             android:id="@+id/backButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/back"
-            android:padding="8dp"
             android:src="@drawable/ic_arrow_back"
-            android:tint="#FFFFFF" />
+            android:contentDescription="@string/back_button"
+            android:scaleType="center"
+            android:tint="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Title -->
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Create New"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:fontFamily="@font/poppins_medium" />
-
-        <!-- Save Button -->
-        <TextView
-            android:id="@+id/saveButton"
+            android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="8dp"
-            android:text="Save"
+            android:text="@string/create_note"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:fontFamily="@font/poppins_medium" />
-    </LinearLayout>
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Main content area -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
+    <!-- Date -->
+    <TextView
+        android:id="@+id/dateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:textColor="#757575"
+        android:textSize="14sp"
+        android:text="July 20, 2025"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout" />
+
+    <!-- Note Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/noteCard"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@+id/guidelineBottom"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dateText">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="16dp">
 
+            <!-- Pencil Icon -->
+            <ImageView
+                android:id="@+id/pencilIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_edit_pencil"
+                android:contentDescription="@string/edit_note"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#6B7158" />
+                
+            <!-- Save Button (Checkmark) -->
+            <ImageButton
+                android:id="@+id/saveButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_check"
+                android:contentDescription="@string/save"
+                android:scaleType="center"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/pencilIcon"
+                app:layout_constraintEnd_toStartOf="@id/pencilIcon"
+                app:layout_constraintTop_toTopOf="@id/pencilIcon"
+                app:tint="#6B7158" />
+
             <!-- Title Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/titleInputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/title"
-                app:boxBackgroundColor="#FFFFFF"
-                app:boxCornerRadius="12dp"
-                app:boxStrokeColor="#E0E0E0"
-                app:boxStrokeWidth="1dp"
-                app:hintTextColor="#9E9E9E"
-                app:startIconDrawable="@drawable/ic_title"
-                app:startIconTint="#6B7158">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/titleEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:inputType="text"
-                    android:textColor="#212121"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Date Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/dateInputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/titleEditText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="@string/date"
-                app:boxBackgroundColor="#FFFFFF"
-                app:boxCornerRadius="12dp"
-                app:boxStrokeColor="#E0E0E0"
-                app:boxStrokeWidth="1dp"
-                app:endIconDrawable="@drawable/ic_calendar"
-                app:endIconMode="custom"
-                app:endIconTint="#6B7158"
-                app:hintTextColor="#9E9E9E"
+                android:background="@null"
+                android:hint="@string/title"
+                android:inputType="text"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:textColor="#212121"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/titleInputLayout">
+                app:layout_constraintTop_toBottomOf="@id/pencilIcon" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dateEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:fontFamily="@font/poppins_regular"
-                    android:inputType="none"
-                    android:textColor="#212121"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="#EEEEEE"
+                app:layout_constraintBottom_toTopOf="@+id/contentEditText"
+                app:layout_constraintTop_toBottomOf="@id/titleEditText" />
 
             <!-- Content Input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/contentInputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/contentEditText"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="16dp"
-                android:hint="@string/write_your_thoughts"
-                app:boxBackgroundColor="#FFFFFF"
-                app:boxCornerRadius="12dp"
-                app:boxStrokeColor="#E0E0E0"
-                app:boxStrokeWidth="1dp"
-                app:hintTextColor="#9E9E9E"
+                android:background="@null"
+                android:gravity="top"
+                android:hint="@string/type_your_thoughts_here"
+                android:inputType="textMultiLine"
+                android:minLines="10"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:scrollbars="vertical"
+                android:textColor="#212121"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dateInputLayout">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/contentEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@null"
-                    android:fontFamily="@font/poppins_regular"
-                    android:gravity="top"
-                    android:inputType="textMultiLine"
-                    android:minHeight="200dp"
-                    android:padding="16dp"
-                    android:textColor="#212121"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@id/titleEditText" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+    </androidx.cardview.widget.CardView>
 
-    <!-- Bottom guideline -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineBottom"
-        android:layout_width="wrap_content"
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_end="0dp"
-        app:layout_constraintGuide_percent="1" />
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:background="?android:attr/windowBackground"
+        app:itemIconTint="@drawable/bottom_nav_colors"
+        app:itemTextColor="@drawable/bottom_nav_colors"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/bottom_nav_menu_create"
+        app:elevation="8dp"
+        app:itemIconSize="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
