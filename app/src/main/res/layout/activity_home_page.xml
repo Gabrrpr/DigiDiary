@@ -11,14 +11,25 @@
     tools:layout_editor_absoluteY="-170dp">
 
     <!-- Top App Bar with Shadow -->
+    <!-- Green padding at the top -->
+    <View
+        android:id="@+id/statusBarPadding"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:background="#4D6B7158"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+        
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
         app:cardBackgroundColor="#EEEEEE"
         app:cardCornerRadius="0dp"
         app:cardElevation="8dp"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/statusBarPadding">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
