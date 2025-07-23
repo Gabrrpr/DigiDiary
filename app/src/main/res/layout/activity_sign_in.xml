@@ -238,7 +238,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/forgotPasswordText"
+        app:layout_constraintTop_toBottomOf="@id/rememberMeCheckbox"
         app:rippleColor="#8B8B8B"
         app:strokeColor="#E6E6E6"
         app:strokeWidth="1dp" />

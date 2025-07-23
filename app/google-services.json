@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968673606857",
+    "project_id": "digidiary-b470a",
+    "storage_bucket": "digidiary-b470a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968673606857:android:071de5ad2be8d75492e118",
+        "android_client_info": {
+          "package_name": "com.example.digi_diary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiJnuE4JDqrLHJ9d_KgiA2cCog-uFmoyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
