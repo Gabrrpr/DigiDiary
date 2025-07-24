@@ -19,6 +19,7 @@
     <string name="content">Content</string>
     <string name="type_your_thoughts_here">Type your thoughts here...</string>
     <string name="edit_note">Edit note</string>
+    <string name="save_note">Save note</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="unsaved_changes">Unsaved Changes</string>
     <string name="save_changes_question">Do you want to save your changes?</string>

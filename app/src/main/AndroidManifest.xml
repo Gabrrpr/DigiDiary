@@ -13,6 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Digi_Diary"
         tools:targetApi="31">
+        
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
         <activity
             android:name=".ForgotPass"
             android:exported="false" />
@@ -28,8 +38,10 @@
         <activity
             android:name=".HomePage"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:taskAffinity="" />
         <activity
             android:name=".SignIn"
             android:exported="true"

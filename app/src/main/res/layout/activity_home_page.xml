@@ -121,22 +121,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
 
-        <!-- Notes List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/notesRecyclerView"
+        <!-- SwipeRefreshLayout for pull-to-refresh -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginHorizontal="16dp"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp"
-            android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/journalsTitle"
-            tools:itemCount="5"
-            tools:listitem="@layout/item_note" />
+            app:layout_constraintTop_toBottomOf="@id/journalsTitle">
+
+            <!-- Notes List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/notesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="16dp"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp"
+                android:scrollbars="vertical"
+                tools:itemCount="5"
+                tools:listitem="@layout/item_note" />
+                
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <!-- Loading Progress Bar -->
         <ProgressBar

@@ -39,10 +39,20 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             Log.d(TAG, "Getting database instance")
             return INSTANCE ?: synchronized(this) {
+                Log.d(TAG, "Creating new database instance")
                 try {
                     val dbFile = context.getDatabasePath("digi_diary_database")
+                    val dbDir = dbFile.parentFile
+                    
                     Log.d(TAG, "Database path: ${dbFile.absolutePath}")
-                    Log.d(TAG, "Database exists: ${dbFile.exists()}")
+                    Log.d(TAG, "Database directory exists: ${dbDir?.exists()}")
+                    Log.d(TAG, "Database file exists: ${dbFile.exists()}")
+                    
+                    if (dbDir != null && !dbDir.exists()) {
+                        Log.d(TAG, "Database directory does not exist, creating...")
+                        val created = dbDir.mkdirs()
+                        Log.d(TAG, "Database directory created: $created")
+                    }
                     
                     val instance = Room.databaseBuilder(
                         context.applicationContext,
@@ -53,32 +63,30 @@ abstract class AppDatabase : RoomDatabase() {
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-                            Log.d(TAG, "New database created, version: ${db.version}")
+                            Log.d(TAG, "Database created successfully")
+                            // Pre-populate the database here if needed
                         }
                         
                         override fun onOpen(db: SupportSQLiteDatabase) {
                             super.onOpen(db)
-                            Log.d(TAG, "Database opened, version: ${db.version}")
+                            Log.d(TAG, "Database opened successfully")
+                        }
+                        
+                        override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                            super.onDestructiveMigration(db)
+                            Log.w(TAG, "Destructive migration occurred")
                         }
                     })
                     .fallbackToDestructiveMigration()
                     .build()
                     
-                    // Log database info after creation
-                    Log.d(TAG, "Database created/opened, version: ${instance.openHelper.readableDatabase.version}")
-                    
-                    // Log tables in the database
-                    val cursor = instance.openHelper.readableDatabase.query(
-                        "SELECT name FROM sqlite_master WHERE type='table'"
-                    )
-                    val tables = mutableListOf<String>()
-                    while (cursor.moveToNext()) {
-                        tables.add(cursor.getString(0))
-                    }
-                    cursor.close()
-                    Log.d(TAG, "Tables in database: $tables")
-                    
+                    Log.d(TAG, "Database instance created successfully")
                     INSTANCE = instance
+                    
+                    // Force open the database to catch any initialization errors
+                    instance.openHelper.writableDatabase
+                    
+                    Log.d(TAG, "Database is now open and ready for use")
                     instance
                 } catch (e: Exception) {
                     Log.e(TAG, "Error creating database", e)

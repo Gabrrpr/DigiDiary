@@ -19,19 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="@string/back_button"
-            android:scaleType="center"
-            android:tint="#FFFFFF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
@@ -79,6 +66,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusable="false"
             android:padding="16dp">
 
             <!-- Pencil Icon -->
@@ -86,29 +75,38 @@
                 android:id="@+id/pencilIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/ic_edit_pencil"
                 android:contentDescription="@string/edit_note"
+                android:src="@drawable/ic_edit_pencil"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="#6B7158" />
-                
+
             <!-- Save Button (Checkmark) -->
-            <ImageButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/saveButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_check"
-                android:contentDescription="@string/save"
-                android:scaleType="center"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/pencilIcon"
-                app:layout_constraintEnd_toStartOf="@id/pencilIcon"
-                app:layout_constraintTop_toTopOf="@id/pencilIcon"
-                app:tint="#6B7158" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/save_note"
+                android:src="@drawable/ic_check_white_24dp"
+                android:visibility="visible"
+                android:enabled="true"
+                app:backgroundTint="#6B7158"
+                app:elevation="8dp"
+                app:fabCustomSize="56dp"
+                app:fabSize="normal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:maxImageSize="32dp"
+                app:rippleColor="#4A5E3C"
+                app:useCompatPadding="true"
+                app:tint="@android:color/white"
+                android:clickable="true"
+                android:focusable="true" />
 
             <!-- Title Input -->
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/titleEditText"
                 android:layout_width="0dp"

@@ -3,6 +3,7 @@ package com.example.digi_diary
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -20,30 +21,62 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.digi_diary.R
-import com.example.digi_diary.data.AppDatabase
 import com.example.digi_diary.data.model.Note
+import com.example.digi_diary.data.repository.NoteRepository
+import com.example.digi_diary.data.Result
 import com.example.digi_diary.databinding.ActivityHomePageBinding
+import com.example.digi_diary.di.IoDispatcher
 import com.example.digi_diary.ui.NoteItemDecoration
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.CoroutineScope
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
+import kotlin.coroutines.cancellation.CancellationException
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.digi_diary.data.AppDatabase
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class HomePage : AppCompatActivity() {
     companion object {
         private const val TAG = "HomePage"
-        private const val REQUEST_CODE_EDIT_NOTE = 1001
-        private const val REQUEST_CODE_CREATE_NOTE = 1002
     }
 
     private lateinit var binding: ActivityHomePageBinding
-    private lateinit var database: AppDatabase
+    
+    @Inject
+    lateinit var noteRepository: NoteRepository
+    
+    @Inject
+    lateinit var database: AppDatabase
+    
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
+    
     private val notesList = mutableListOf<Note>()
     private var currentUserId: String = ""
     private lateinit var noteAdapter: NoteAdapter
+    private var isSyncing = false
+
+    // ActivityResultLauncher for handling Create note result
+    private val createNoteLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d(TAG, "🔄 [createNoteLauncher] Result received: ${result.resultCode}")
+        
+        if (result.resultCode == RESULT_OK) {
+            Log.d(TAG, "✅ [createNoteLauncher] Note saved, refreshing notes list")
+            loadNotes()
+        } else {
+            Log.d(TAG, "⚠️ [createNoteLauncher] Operation canceled or failed")
+        }
+    }
 
     private fun createNoteAdapter(): NoteAdapter {
         return NoteAdapter(
@@ -57,7 +90,7 @@ class HomePage : AppCompatActivity() {
                     intent?.getStringExtra("USER_NAME")?.let { putExtra("USER_NAME", it) }
                     intent?.getStringExtra("USER_EMAIL")?.let { putExtra("USER_EMAIL", it) }
                 }
-                startActivityForResult(intent, REQUEST_CODE_EDIT_NOTE)
+                createNoteLauncher.launch(intent)
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             },
             onDeleteClick = { note ->
@@ -92,9 +125,6 @@ class HomePage : AppCompatActivity() {
         // Initialize loading state
         isLoading = true
         startTime = System.currentTimeMillis()
-
-        // Initialize database
-        database = AppDatabase.getDatabase(this)
 
         // Get current user ID from intent or shared preferences
         currentUserId = intent.getStringExtra("user_id") ?: ""
@@ -138,7 +168,7 @@ class HomePage : AppCompatActivity() {
 
         // Get user data from intent with fallback to shared preferences
         val sharedPrefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        val userName = intent.getStringExtra("USER_NAME") ?: sharedPrefs.getString("user_name", "User") ?: "User"
+        val userName = intent.getStringExtra("USER_NAME") ?: sharedPrefs.getString("USER_NAME", "User") ?: "User"
 
         // Store user data in shared preferences for future use
         with(sharedPrefs.edit()) {
@@ -196,7 +226,7 @@ class HomePage : AppCompatActivity() {
                 putExtra("USER_NAME", this@HomePage.intent.getStringExtra("USER_NAME") ?: "")
                 putExtra("USER_EMAIL", this@HomePage.intent.getStringExtra("USER_EMAIL") ?: "")
             }
-            startActivityForResult(intent, REQUEST_CODE_CREATE_NOTE)
+            createNoteLauncher.launch(intent)
             // Add fade animation
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
@@ -272,8 +302,9 @@ class HomePage : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle("Delete Note")
                 .setMessage("Are you sure you want to delete this note?")
-                .setPositiveButton("Delete") { _, _ -> 
+                .setPositiveButton("Delete") { dialog, _ -> 
                     Log.d(TAG, "User confirmed deletion of note: ${note.id}")
+                    dialog.dismiss()
                     deleteNote(note) 
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
@@ -283,7 +314,14 @@ class HomePage : AppCompatActivity() {
                 .setOnDismissListener {
                     Log.d(TAG, "Delete dialog dismissed")
                 }
-                .show()
+                .create()
+                .apply {
+                    setOnShowListener {
+                        getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColor(R.color.red_500))
+                        getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColor(R.color.blue))
+                    }
+                    show()
+                }
         } catch (e: Exception) {
             Log.e(TAG, "Error showing delete confirmation dialog", e)
             showError("Error preparing delete confirmation")
@@ -296,37 +334,29 @@ class HomePage : AppCompatActivity() {
         // Show loading state
         showLoading()
         
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(ioDispatcher) {
             try {
-                // Delete the note from the database
-                database.noteDao().delete(note)
-                
-                // Update the UI on the main thread
-                withContext(Dispatchers.Main) {
-                    // Remove the note from the local list
-                    val removed = notesList.removeAll { it.id == note.id }
-                    Log.d(TAG, "Note ${if (removed) "removed from" else "not found in"} local list")
-                    
-                    // Reload notes to ensure UI is in sync with the database
-                    loadNotes()
-                    
-                    // Show success message
-                    showError("Note deleted")
-                    
-                    Log.d(TAG, "✅ Successfully deleted note: ${note.id}")
+                when (val result = noteRepository.deleteNote(note.id, currentUserId)) {
+                    is Result.Success -> {
+                        Log.d(TAG, "✅ Successfully deleted note: ${note.id}")
+                        // The UI will be updated automatically via the Flow from getNotes()
+                    }
+                    is Result.Error -> {
+                        Log.e(TAG, "❌ Error deleting note: ${note.id}", result.exception)
+                        withContext(Dispatchers.Main) {
+                            showError("Failed to delete note: ${result.exception.message}")
+                        }
+                    }
+                    else -> {}
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "❌ Error deleting note: ${note.id}", e)
-                
+                Log.e(TAG, "❌ Unexpected error deleting note: ${note.id}", e)
                 withContext(Dispatchers.Main) {
-                    showError("Failed to delete note: ${e.message}")
-                    
-                    // Try to recover by reloading the notes
-                    loadNotes()
+                    showError("An unexpected error occurred: ${e.message}")
                 }
             } finally {
-                // Ensure we're not in a loading state
                 withContext(Dispatchers.Main) {
+                    // Ensure we're not in a loading state
                     if (notesList.isEmpty()) {
                         showEmptyState()
                     } else {
@@ -387,31 +417,6 @@ class HomePage : AppCompatActivity() {
                 if (!::binding.isInitialized) {
                     Log.e(TAG, "❌ Binding not initialized in updateNotesList")
                     showErrorState("UI not properly initialized")
-                    return@runOnUiThread
-                }
-
-                // Ensure RecyclerView exists
-                if (binding.notesRecyclerView == null) {
-                    Log.e(TAG, "❌ RecyclerView is null in updateNotesList")
-                    showErrorState("Failed to initialize notes display")
-                    return@runOnUiThread
-                }
-
-                // Ensure adapter is initialized
-                if (!::noteAdapter.isInitialized) {
-                    Log.w(
-                        TAG,
-                        "⚠️ NoteAdapter not initialized in updateNotesList, creating new one"
-                    )
-                    try {
-                        noteAdapter = createNoteAdapter()
-                        binding.notesRecyclerView.adapter = noteAdapter
-                        Log.d(TAG, "✅ Created and set new NoteAdapter")
-                    } catch (e: Exception) {
-                        Log.e(TAG, "❌ Failed to create NoteAdapter", e)
-                        showErrorState("Failed to initialize notes display")
-                        return@runOnUiThread
-                    }
                 }
 
                 // Update the notes list with the new data
@@ -542,7 +547,14 @@ class HomePage : AppCompatActivity() {
             setupRecyclerView()
             Log.d(TAG, "✅ RecyclerView setup complete")
 
-            // 3. Verify RecyclerView and Adapter
+            // 3. Set up SwipeRefreshLayout
+            binding.swipeRefreshLayout.setOnRefreshListener {
+                Log.d(TAG, "🔄 Pull to refresh triggered")
+                syncNotes()
+            }
+            Log.d(TAG, "✅ SwipeRefreshLayout setup complete")
+
+            // 4. Verify RecyclerView and Adapter
             if (binding.notesRecyclerView.adapter == null) {
                 Log.e(TAG, "❌ RecyclerView adapter is still null after setup!")
                 // Emergency fallback - set adapter directly
@@ -550,7 +562,7 @@ class HomePage : AppCompatActivity() {
                 Log.d(TAG, "⚠️ Manually set adapter on RecyclerView")
             }
 
-            // 4. Load notes after a short delay to ensure UI is ready
+            // 5. Load notes after a short delay to ensure UI is ready
             binding.notesRecyclerView.postDelayed({
                 try {
                     Log.d(TAG, "⏳ Delayed loadNotes starting...")
@@ -565,10 +577,55 @@ class HomePage : AppCompatActivity() {
             showErrorState("Error initializing app")
         }
     }
+    
+    private fun syncNotes() {
+        if (isSyncing) {
+            Log.d(TAG, "🔁 Sync already in progress, skipping")
+            return
+        }
+        
+        isSyncing = true
+        binding.swipeRefreshLayout.isRefreshing = true
+        
+        lifecycleScope.launch(ioDispatcher) {
+            try {
+                Log.d(TAG, "🔄 Starting sync for user: $currentUserId")
+                
+                when (val result = noteRepository.syncNotes(currentUserId)) {
+                    is Result.Success -> {
+                        Log.d(TAG, "✅ Sync completed successfully")
+                        // The UI will be updated automatically via the Flow from getNotes()
+                    }
+                    is Result.Error -> {
+                        Log.e(TAG, "❌ Sync failed: ${result.exception.message}")
+                        withContext(Dispatchers.Main) {
+                            showError("Sync failed: ${result.exception.message}")
+                        }
+                    }
+                    else -> {}
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Error during sync", e)
+                withContext(Dispatchers.Main) {
+                    showError("Error during sync: ${e.message}")
+                }
+            } finally {
+                isSyncing = false
+                withContext(Dispatchers.Main) {
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        }
+    }
 
+    private var loadNotesJob: Job? = null
+    
     private fun loadNotes() {
         Log.d(TAG, "🚀 Starting to load notes for user: '$currentUserId'")
 
+        // Cancel any existing load operation
+        loadNotesJob?.cancel()
+        
         // Check if activity is still valid
         if (isFinishing || isDestroyed) {
             Log.w(TAG, "⚠️ Activity is finishing or destroyed, skipping load")
@@ -589,36 +646,80 @@ class HomePage : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        loadNotesJob = lifecycleScope.launch(ioDispatcher) {
             try {
-                Log.d(TAG, "🔍 Querying database for user: '$currentUserId'")
-
-                // Get notes for current user
-                val userNotes = database.noteDao().getUserNotesSync(currentUserId)
-                Log.d(TAG, "✅ Retrieved ${userNotes.size} notes for user '$currentUserId'")
-
-                withContext(Dispatchers.Main) {
-                    if (isFinishing || isDestroyed) return@withContext
-                    
-                    if (userNotes.isEmpty()) {
-                        Log.d(TAG, "ℹ️ No notes found for user")
-                        showEmptyState()
-                    } else {
-                        Log.d(TAG, "📝 Updating UI with ${userNotes.size} notes")
-                        updateNotesList(userNotes)
+                Log.d(TAG, "🔍 Loading notes from repository for user: '$currentUserId'")
+                
+                // Collect the flow of notes
+                noteRepository.getNotes(currentUserId).collect { result ->
+                    if (isActive) {  // Only process if the job is still active
+                        when (result) {
+                            is Result.Success -> {
+                                val notes = result.data
+                                Log.d(TAG, "✅ Retrieved ${notes.size} notes for user '$currentUserId'")
+                                
+                                withContext(Dispatchers.Main) {
+                                    if (!isFinishing && !isDestroyed) {
+                                        if (notes.isEmpty()) {
+                                            Log.d(TAG, "ℹ️ No notes found for user")
+                                            showEmptyState()
+                                        } else {
+                                            Log.d(TAG, "📝 Updating UI with ${notes.size} notes")
+                                            updateNotesList(notes)
+                                        }
+                                    }
+                                }
+                            }
+                            is Result.Error -> {
+                                // Only show error if we're still active
+                                if (isActive) {
+                                    Log.e(TAG, "❌ Error loading notes: ${result.exception.message}", result.exception)
+                                    showErrorState("Failed to load notes")
+                                }
+                            }
+                            is Result.Loading -> {
+                                // Show loading state if needed
+                                if (isActive) {
+                                    withContext(Dispatchers.Main) {
+                                        if (!isFinishing && !isDestroyed) {
+                                            showLoading()
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "❌ Error loading notes", e)
-                showErrorState("Failed to load notes: ${e.message}")
+                // Only log if we're still active
+                if (isActive) {
+                    Log.e(TAG, "❌ Error in loadNotes flow: ${e.message}", e)
+                    // Don't show error message for cancellation
+                    if (e !is CancellationException) {
+                        showErrorState("Failed to load notes")
+                    }
+                }
             }
         }
     }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel any pending load operations
+        loadNotesJob?.cancel()
+    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_CREATE_NOTE || requestCode == REQUEST_CODE_EDIT_NOTE) {
+
+    
+    // ActivityResultLauncher for handling Edit note result
+    private val editNoteLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d(TAG, "🔄 [editNoteLauncher] Result received: ${result.resultCode}")
+        
+        if (result.resultCode == RESULT_OK) {
+            Log.d(TAG, "✅ [editNoteLauncher] Note updated, refreshing notes list")
             loadNotes()
+        } else {
+            Log.d(TAG, "⚠️ [editNoteLauncher] Operation canceled or failed")
         }
     }
 

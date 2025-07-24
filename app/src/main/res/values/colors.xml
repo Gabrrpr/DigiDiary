@@ -12,4 +12,8 @@
     <color name="gray_600">#757575</color> <!-- Material Design Gray 600 -->
     <color name="red_500">#F44336</color> <!-- Material Design Red 500 -->
     <color name="primary_color">#6200EE</color> <!-- Primary brand color -->
+    
+    <!-- Material Design theme colors -->
+    <color name="md_theme_light_primary">@color/purple_500</color>
+    <color name="blue">#2196F3</color> <!-- Material Design Blue 500 -->
 </resources>

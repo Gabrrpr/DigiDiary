@@ -95,10 +95,27 @@ class Profile : AppCompatActivity() {
             // Home button
             val navHome = findViewById<View>(R.id.nav_home)
             navHome?.setOnClickListener {
-                // Just finish the current activity to go back to HomePage
-                finish()
-                // Add fade animation
+                // Create a fresh HomePage intent and clear everything in between
+                val intent = Intent(this@Profile, HomePage::class.java).apply {
+                    // Clear the back stack
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or 
+                            Intent.FLAG_ACTIVITY_NEW_TASK or 
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    
+                    // Pass user data
+                    putExtra("user_id", intent?.getStringExtra("user_id") ?: "")
+                    putExtra("USER_NAME", intent?.getStringExtra("USER_NAME") ?: "")
+                    putExtra("USER_EMAIL", intent?.getStringExtra("USER_EMAIL") ?: "")
+                }
+                
+                // Start HomePage and clear everything in between
+                startActivity(intent)
+                
+                // Add a smooth transition animation
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                
+                // Finish the current activity
+                finish()
             }
 
             // Profile button - already on profile, so just highlight it
@@ -152,7 +169,7 @@ class Profile : AppCompatActivity() {
     }
 
     private fun showLogoutConfirmation() {
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
             .setTitle("Logout")
             .setMessage("Are you sure you want to logout?")
             .setPositiveButton("Logout") { _, _ ->
@@ -163,7 +180,13 @@ class Profile : AppCompatActivity() {
                 finish()
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .setCancelable(true)
+            .create()
+            .apply {
+                // Ensure the dialog is not dismissed when touching outside
+                setCanceledOnTouchOutside(false)
+                show()
+            }
     }
 
     override fun onBackPressed() {
